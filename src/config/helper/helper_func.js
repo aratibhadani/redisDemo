@@ -51,7 +51,8 @@ module.exports = {
         return bcrypt.hashSync(password, salt);
     },
     // common for comparing password
-    // eslint-disable-next-line no-return-await
-    comparePassword: async (password, dbPassword) => await bcrypt.compare(password, dbPassword),
+    comparePassword: async (password, dbPassword) => {
+        return await bcrypt.compare(password, dbPassword)
+    },
 
 };
