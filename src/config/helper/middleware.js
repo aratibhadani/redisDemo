@@ -2,6 +2,7 @@ require('dotenv').config();
 const { tokenMatch } = require("./helper_func");
 var jwt = require('jsonwebtoken');
 const { FORBIDDEN_STATUS, PAGE_NOT_FOUND_STATUS, UNAUTHORIZED_STATUS } = require('./enum_data');
+const client = require('./redis_client');
 
 
 //for check login user jwt
@@ -31,5 +32,20 @@ const loginCheck = async (req, res, next) => {
     res.status(UNAUTHORIZED_STATUS).json({ message: error });
   }
 }
+const redis_middleware = async (req, res, next) => {
+  try {
+    console.log('start middleware')
+    const redisData=await client.get('userData');
+    if(!redisData){
+      next()
+    }else{
+      console.log('=====================================redis  call =============================================')
+        res.send(JSON.parse(redisData))
+    }
+  } catch (error) {
+    console.log('middleware error--->', error)
+  }
+}
 
-module.exports = { loginCheck }
+
+module.exports = { loginCheck,redis_middleware }

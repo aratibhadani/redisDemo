@@ -5,15 +5,17 @@ const {
   listUser,
   loginUser,
   logout,
-  changePassword,
-  postForgetPassword,
-  getResetPassword,
-  postResetPassword,
   editUser,
   deleteUser,
-  sendEmailToUsers,
 } = require('../controller/auth_ctl');
-const { loginCheck } = require('../config/helper/middleware');
+const { loginCheck, redis_middleware } = require('../config/helper/middleware');
+const userSchema = require('../model/user_model');
+const client = require('../config/helper/redis_client');
+
+//connect to the redis client
+(async()=>{
+  await client.connect();
+})();
 
 const router = express.Router();
 router.use(bodyParser.urlencoded({ extended: false }));
@@ -21,23 +23,11 @@ router.use(bodyParser.json());
 
 router.post('/registration', userRegistration);
 router.post('/login', loginUser);
-
-// route for forgot password ,make get route for better understanding
-router.post('/forgot-password', postForgetPassword);
-
-router.get('/reset-password/:token', getResetPassword);
-router.post('/reset-password/:token', postResetPassword);
-
-// change password after login
-router.post('/changepwd', loginCheck, changePassword);
 router.put('/edituser/:id', loginCheck, editUser);
 router.delete('/deletuser/:id', loginCheck, deleteUser);
-router.get('', loginCheck, listUser);
-router.get('', loginCheck, editUser);
 
-//send all user to mail for offer
-router.get('/sendoffer',loginCheck,sendEmailToUsers);
-
+//redis_middleware is a check the data is present or not in redis
+router.get('/',loginCheck,redis_middleware, listUser);
 router.get('/logout', loginCheck, logout);
 
 module.exports = router;
