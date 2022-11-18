@@ -8,19 +8,25 @@ const client = require('./redis_client');
 //for check login user jwt
 const loginCheck = async (req, res, next) => {
   try {
-
     if (!req.headers['authorization']) {
       res.status(FORBIDDEN_STATUS).json({
         message: "Token Not get"
       });
     } else {
       const token = req.headers.authorization.split(' ')[1];
-      await jwt.verify(token, process.env.LOGIN_SECRET_KEY, async (err, payload) => {
+      await jwt.verify(token, process.env.LOGIN_SECRET_KEY, async (err, decoded) => {
         if (err) {
           const message = err.name === 'JsonWebTokenError' ? 'Unauthorized' : err.message;
           res.status(PAGE_NOT_FOUND_STATUS).json({ message: message });
         } else {
-          const user = await tokenMatch(payload.id, token);
+         
+          const user = await tokenMatch(decoded.id, token);
+          req.user={
+            id:user.id,
+            name:user.name,
+            email:user.email,
+            contactno:user.contactno
+          };
           if (user)
             next();
           else

@@ -32,11 +32,7 @@ module.exports = {
             },
         });
     },
-    // create common function for forget password token match
-    forgetTokenCompare: async (token, secret) => {
-        return await jwt.verify(token, secret);
-    },
-
+   
     // return decoded token value
     returnDecodedToken: async (req) => {
         const token = req.headers.authorization.split(' ')[1];
